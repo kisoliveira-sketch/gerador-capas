@@ -491,7 +491,7 @@ export default function App() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [logoDataUrl, setLogoDataUrl] = useState("");
   const [logoName, setLogoName] = useState("");
-  const [accentColor, setAccentColor] = useState(
+  const [accentColor, setAccentColor] = useState<string>(
     sectorConfig[initialForm.sector].accent,
   );
   const [eyeDropperError, setEyeDropperError] = useState("");
@@ -889,7 +889,9 @@ export default function App() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => handleChange("themeMode", "light")}
+                  onClick={() =>
+                    handleChange("themeMode", "light" as ThemeMode)
+                  }
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                     !isDarkMode
                       ? "border-slate-900 bg-slate-900 text-white"
@@ -901,7 +903,7 @@ export default function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleChange("themeMode", "dark")}
+                  onClick={() => handleChange("themeMode", "dark" as ThemeMode)}
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                     isDarkMode
                       ? "border-slate-900 bg-slate-900 text-white"
