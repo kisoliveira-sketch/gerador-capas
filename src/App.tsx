@@ -1057,7 +1057,7 @@ export default function App() {
 
                 <div
                   className="mb-6 max-w-[300px] text-[clamp(16px,1.35vw,24px)] font-semibold leading-[1.15]"
-                  style={{ color: coverTextPrimary }}
+                  style={{ color: coverFooterBg }}
                 >
                   {form.companyName || "NOME DA EMPRESA"}
                 </div>
