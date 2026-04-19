@@ -1050,7 +1050,7 @@ export default function App() {
                       className="text-[clamp(18px,1.8vw,28px)] font-semibold tracking-wide"
                       style={{ color: isDarkMode ? "#f8fafc" : accentColor }}
                     >
-                      LOGO DO CLIENTE
+                      LOGO
                     </div>
                   )}
                 </div>
