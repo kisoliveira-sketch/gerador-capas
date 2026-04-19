@@ -553,6 +553,7 @@ export default function App() {
   const [logoDataUrl, setLogoDataUrl] = useState("");
   const [logoName, setLogoName] = useState("");
   const [accentColor, setAccentColor] = useState<string>("#1f5fae");
+  const [autoExtractLogoColor, setAutoExtractLogoColor] = useState(false);
   const [eyeDropperError, setEyeDropperError] = useState("");
   const [coverVersion, setCoverVersion] = useState(0);
   const [gallery, setGallery] = useState<SavedCover[]>([]);
@@ -652,6 +653,7 @@ export default function App() {
   const processLogoFile = async (file?: File) => {
     if (!file) return;
     setLogoName(file.name);
+    setAutoExtractLogoColor(true);
     const dataUrl = await readFileAsDataURL(file);
     setLogoDataUrl(dataUrl);
   };
@@ -668,12 +670,14 @@ export default function App() {
   };
 
   const handleLogoProbeLoad = () => {
-    if (!logoProbeRef.current) return;
+    if (!logoProbeRef.current || !autoExtractLogoColor) return;
     const extracted = getAverageColorFromImage(logoProbeRef.current);
     if (extracted) setAccentColor(extracted);
+    setAutoExtractLogoColor(false);
   };
 
   const clearLogo = () => {
+    setAutoExtractLogoColor(false);
     setLogoDataUrl("");
     setLogoName("");
     setAccentColor(selectedSector ? selectedSector.accent : "#1f5fae");
@@ -682,6 +686,7 @@ export default function App() {
 
   const resetCover = () => {
     setForm({ ...initialForm });
+    setAutoExtractLogoColor(false);
     setLogoDataUrl("");
     setLogoName("");
     setAccentColor("#1f5fae");
@@ -694,6 +699,7 @@ export default function App() {
 
   const loadSavedCover = (item: SavedCover) => {
     setForm(item.form);
+    setAutoExtractLogoColor(false);
     setLogoDataUrl(item.logoUrl || "");
     setLogoName(item.logoName || "");
     setAccentColor(item.accentColor);
