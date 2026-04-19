@@ -1116,7 +1116,7 @@ export default function App() {
 
                 <h2
                   className="text-left text-[clamp(66px,6.8vw,126px)] font-semibold uppercase leading-[0.92] tracking-[0.01em]"
-                  style={{ color: coverFooterBg }}
+                  style={{ color: coverTextPrimary }}
                 >
                   RELATÓRIO
                   <br />& CONTAS
