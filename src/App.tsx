@@ -87,6 +87,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80",
     icon: Megaphone,
   },
+  Funerárias: {
+    accent: "#7a6a8c",
+    image:
+      "https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=1600&q=80",
+    icon: HeartPulse,
+  },
   Imobiliária: {
     accent: "#c8792a",
     image:
