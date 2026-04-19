@@ -84,7 +84,7 @@ const sectorConfig = {
   "Eventos e Cultura": {
     accent: "#ea580c",
     image:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80",
     icon: Megaphone,
   },
   Funerárias: {
@@ -105,12 +105,6 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1600&q=80",
     icon: Factory,
   },
-  "Medicina Alternativa": {
-    accent: "#5f8f7b",
-    image:
-      "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/acunpuntura.jpg",
-    icon: HeartPulse,
-  },
   Informática: {
     accent: "#1f5fae",
     image:
@@ -129,6 +123,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80",
     icon: Wrench,
   },
+  "Medicina Alternativa": {
+    accent: "#5f8f7b",
+    image:
+      "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/acunpuntura.jpg",
+    icon: HeartPulse,
+  },
   Merchandising: {
     accent: "#db2777",
     image:
@@ -140,6 +140,12 @@ const sectorConfig = {
     image:
       "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80",
     icon: LayoutTemplate,
+  },
+  "Pastelarias & Restauração": {
+    accent: "#c26a3d",
+    image:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
+    icon: UtensilsCrossed,
   },
   "Produção Musical": {
     accent: "#7c3aed",
@@ -158,6 +164,12 @@ const sectorConfig = {
     image:
       "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1600&q=80",
     icon: Languages,
+  },
+  "Viagens & Turismo": {
+    accent: "#0ea5a4",
+    image:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
+    icon: Home,
   },
 } as const;
 
@@ -1021,7 +1033,7 @@ export default function App() {
                   backgroundPosition: "center",
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
-                  opacity: isDarkMode ? 0.22 : 0.32,
+                  opacity: isDarkMode ? 0.42 : 0.52,
                   filter:
                     "blur(0.8px) saturate(0.82) contrast(1.02) brightness(1.04)",
                   transform: "scale(1.04)",
