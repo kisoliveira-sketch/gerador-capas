@@ -573,7 +573,7 @@ export default function App() {
 
       if (error) {
         console.error("Erro ao carregar galeria:", error);
-        setSaveMessage("Erro ao carregar a Galeria.");
+        setSaveMessage(`Erro ao carregar galeria: ${error.message}`);
         return;
       }
 
@@ -744,7 +744,7 @@ export default function App() {
 
     if (error) {
       console.error("Erro ao guardar capa:", error);
-      setSaveMessage("Erro ao guardar a capa.");
+      setSaveMessage(`Erro ao guardar: ${error.message}`);
       return;
     }
 
@@ -789,7 +789,7 @@ export default function App() {
 
     if (error) {
       console.error("Erro ao atualizar capa:", error);
-      setSaveMessage("Erro ao atualizar a capa.");
+      setSaveMessage(`Erro ao atualizar: ${error.message}`);
       return;
     }
 
@@ -828,7 +828,7 @@ export default function App() {
 
     if (error) {
       console.error("Erro ao duplicar capa:", error);
-      setSaveMessage("Erro ao duplicar a capa.");
+      setSaveMessage(`Erro ao duplicar: ${error.message}`);
       return;
     }
 
@@ -854,7 +854,7 @@ export default function App() {
 
     if (error) {
       console.error("Erro ao apagar capa:", error);
-      setSaveMessage("Erro ao apagar a capa.");
+      setSaveMessage(`Erro ao apagar: ${error.message}`);
       return;
     }
 
