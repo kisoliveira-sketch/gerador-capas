@@ -93,6 +93,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=1600&q=80",
     icon: HeartPulse,
   },
+  "Hotelaria & Turismo": {
+    accent: "#0ea5a4",
+    image:
+      "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/mindelo-port-marina-2.webp",
+    icon: Home,
+  },
   Imobiliária: {
     accent: "#c8792a",
     image:
@@ -186,6 +192,7 @@ const KZO_COPYRIGHT_LOGO =
   "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/5b46d079-3392-4aa1-bee4-b5814ee8f99a_KZO_LOGO.png";
 
 type SectorKey = keyof typeof sectorConfig;
+type SectorValue = SectorKey | "";
 type AccountingLogoKey = keyof typeof ACCOUNTING_LOGOS;
 type ThemeMode = "light" | "dark";
 
@@ -196,7 +203,7 @@ type FormState = {
   address: string;
   phone: string;
   email: string;
-  sector: SectorKey;
+  sector: SectorValue;
   accountingFirm: string;
   accountingLogo: AccountingLogoKey;
   themeMode: ThemeMode;
@@ -209,7 +216,7 @@ const initialForm: FormState = {
   address: "",
   phone: "",
   email: "",
-  sector: "Informática",
+  sector: "",
   accountingFirm: "VC Contabilidade & Serviços",
   accountingLogo: "branco",
   themeMode: "light",
@@ -518,9 +525,7 @@ export default function App() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [logoDataUrl, setLogoDataUrl] = useState("");
   const [logoName, setLogoName] = useState("");
-  const [accentColor, setAccentColor] = useState<string>(
-    sectorConfig[initialForm.sector].accent,
-  );
+  const [accentColor, setAccentColor] = useState<string>("#1f5fae");
   const [eyeDropperError, setEyeDropperError] = useState("");
   const [coverVersion, setCoverVersion] = useState(0);
 
@@ -528,7 +533,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const selectedSector = useMemo(
-    () => sectorConfig[form.sector],
+    () => (form.sector ? sectorConfig[form.sector as SectorKey] : null),
     [form.sector],
   );
   const selectedAccountingLogo = ACCOUNTING_LOGOS[form.accountingLogo];
@@ -543,11 +548,11 @@ export default function App() {
     "border-slate-300 bg-slate-50 text-slate-700 hover:border-slate-400 hover:bg-slate-100";
   const smallInfoBoxClass = "border-slate-200 bg-white text-slate-600";
   const coverBaseBg = isDarkMode ? "#0f172a" : "#f5f3ee";
-  const coverTextPrimary = isDarkMode ? "#f8fafc" : "#0f172a";
+  const coverFooterBg = isDarkMode ? "#020617" : "#16293d";
+  const coverTextPrimary = isDarkMode ? "#f8fafc" : coverFooterBg;
   const coverTextSecondary = isDarkMode
     ? "rgba(226,232,240,0.9)"
     : "rgba(51,65,85,0.9)";
-  const coverFooterBg = isDarkMode ? "#020617" : "#16293d";
 
   const handleChange = <K extends keyof FormState>(
     key: K,
@@ -583,7 +588,7 @@ export default function App() {
   const clearLogo = () => {
     setLogoDataUrl("");
     setLogoName("");
-    setAccentColor(selectedSector.accent);
+    setAccentColor(selectedSector ? selectedSector.accent : "#1f5fae");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -591,7 +596,7 @@ export default function App() {
     setForm({ ...initialForm });
     setLogoDataUrl("");
     setLogoName("");
-    setAccentColor(sectorConfig[initialForm.sector].accent);
+    setAccentColor("#1f5fae");
     setEyeDropperError("");
     setCoverVersion((prev) => prev + 1);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -768,11 +773,13 @@ export default function App() {
                   className={uiFieldClass}
                   value={form.sector}
                   onChange={(e) => {
-                    const next = e.target.value as SectorKey;
+                    const next = e.target.value as SectorValue;
                     handleChange("sector", next);
-                    setAccentColor(sectorConfig[next].accent);
+                    if (next)
+                      setAccentColor(sectorConfig[next as SectorKey].accent);
                   }}
                 >
+                  <option value="">Selecionar setor</option>
                   {Object.keys(sectorConfig).map((sector) => (
                     <option key={sector} value={sector}>
                       {sector}
@@ -894,7 +901,7 @@ export default function App() {
 
               <div className="flex flex-wrap gap-2">
                 {[
-                  selectedSector.accent,
+                  ...(selectedSector ? [selectedSector.accent] : []),
                   "#f97316",
                   "#1d4ed8",
                   "#15803d",
@@ -916,9 +923,7 @@ export default function App() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() =>
-                    handleChange("themeMode", "light" as ThemeMode)
-                  }
+                  onClick={() => handleChange("themeMode", "light")}
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                     !isDarkMode
                       ? "border-slate-900 bg-slate-900 text-white"
@@ -930,7 +935,7 @@ export default function App() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleChange("themeMode", "dark" as ThemeMode)}
+                  onClick={() => handleChange("themeMode", "dark")}
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                     isDarkMode
                       ? "border-slate-900 bg-slate-900 text-white"
@@ -1029,7 +1034,9 @@ export default function App() {
               <div
                 className="absolute inset-x-0 top-0 bottom-[12.5%]"
                 style={{
-                  backgroundImage: `url(${selectedSector.image})`,
+                  backgroundImage: selectedSector
+                    ? `url(${selectedSector.image})`
+                    : "none",
                   backgroundPosition: "center",
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
@@ -1081,7 +1088,7 @@ export default function App() {
 
                 <div
                   className="mb-6 max-w-[300px] text-[clamp(16px,1.35vw,24px)] font-semibold leading-[1.15]"
-                  style={{ color: coverFooterBg }}
+                  style={{ color: coverTextPrimary }}
                 >
                   {form.companyName || "NOME DA EMPRESA"}
                 </div>
@@ -1109,7 +1116,7 @@ export default function App() {
 
                 <h2
                   className="text-left text-[clamp(66px,6.8vw,126px)] font-semibold uppercase leading-[0.92] tracking-[0.01em]"
-                  style={{ color: coverTextPrimary }}
+                  style={{ color: coverFooterBg }}
                 >
                   RELATÓRIO
                   <br />& CONTAS
