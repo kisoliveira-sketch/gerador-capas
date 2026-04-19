@@ -158,6 +158,9 @@ const ACCOUNTING_LOGOS = {
     "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/logo_vc_preto.png",
 } as const;
 
+const KZO_COPYRIGHT_LOGO =
+  "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/5b46d079-3392-4aa1-bee4-b5814ee8f99a_KZO_LOGO.png";
+
 type SectorKey = keyof typeof sectorConfig;
 type AccountingLogoKey = keyof typeof ACCOUNTING_LOGOS;
 type ThemeMode = "light" | "dark";
@@ -1128,6 +1131,22 @@ export default function App() {
           </div>
         </main>
       </div>
+
+      <footer className="no-print border-t border-slate-200 bg-white/95">
+        <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4 px-5 py-3 text-sm text-slate-500">
+          <div className="flex items-center gap-3">
+            <img
+              src={KZO_COPYRIGHT_LOGO}
+              alt="KZO Logo"
+              className="h-8 w-auto object-contain opacity-90"
+            />
+            <span>
+              © {new Date().getFullYear()} KZO. Todos os direitos reservados.
+            </span>
+          </div>
+          <span className="text-slate-400">Gerador de Capas</span>
+        </div>
+      </footer>
     </div>
   );
 }
