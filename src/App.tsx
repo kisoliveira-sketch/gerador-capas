@@ -1,26 +1,33 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { supabase } from "./lib/supabase";
 import {
   Building2,
   Briefcase,
   Car,
+  Copy,
   Download,
   Factory,
+  FilePenLine,
   FileText,
   GraduationCap,
   HardHat,
   HeartPulse,
   Home,
   Languages,
+  LayoutGrid,
   LayoutTemplate,
   Megaphone,
   Monitor,
   Moon,
   Music4,
   PaintBucket,
+  Save,
+  Search,
   Sparkles,
   Store,
   Sun,
   Tractor,
+  Trash2,
   Truck,
   UtensilsCrossed,
   Wrench,
@@ -209,6 +216,17 @@ type FormState = {
   themeMode: ThemeMode;
 };
 
+type SavedCover = {
+  id: string;
+  name: string;
+  form: FormState;
+  accentColor: string;
+  logoUrl: string;
+  logoName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 const initialForm: FormState = {
   companyName: "",
   year: "",
@@ -221,6 +239,15 @@ const initialForm: FormState = {
   accountingLogo: "branco",
   themeMode: "light",
 };
+
+function makeId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function formatDateTime(dateIso: string) {
+  const d = new Date(dateIso);
+  return d.toLocaleString();
+}
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -528,9 +555,50 @@ export default function App() {
   const [accentColor, setAccentColor] = useState<string>("#1f5fae");
   const [eyeDropperError, setEyeDropperError] = useState("");
   const [coverVersion, setCoverVersion] = useState(0);
+  const [gallery, setGallery] = useState<SavedCover[]>([]);
+  const [coverName, setCoverName] = useState("");
+  const [activeCoverId, setActiveCoverId] = useState<string | null>(null);
+  const [gallerySearch, setGallerySearch] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const logoProbeRef = useRef<HTMLImageElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const loadGallery = async () => {
+      const { data, error } = await supabase
+        .from("covers")
+        .select("*")
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        console.error("Erro ao carregar galeria:", error);
+        setSaveMessage("Erro ao carregar a Galeria.");
+        return;
+      }
+
+      const mapped: SavedCover[] = (data || []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        form: item.form as FormState,
+        accentColor: item.accent_color,
+        logoUrl: item.logo_url || "",
+        logoName: item.logo_name || "",
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+      }));
+
+      setGallery(mapped);
+    };
+
+    loadGallery();
+  }, []);
+
+  useEffect(() => {
+    if (!saveMessage) return;
+    const timer = window.setTimeout(() => setSaveMessage(""), 2400);
+    return () => window.clearTimeout(timer);
+  }, [saveMessage]);
 
   const selectedSector = useMemo(
     () => (form.sector ? sectorConfig[form.sector as SectorKey] : null),
@@ -538,6 +606,26 @@ export default function App() {
   );
   const selectedAccountingLogo = ACCOUNTING_LOGOS[form.accountingLogo];
   const isDarkMode = form.themeMode === "dark";
+
+  const filteredGallery = useMemo(() => {
+    const q = gallerySearch.trim().toLowerCase();
+    const base = [...gallery].sort((a, b) =>
+      b.updatedAt.localeCompare(a.updatedAt),
+    );
+    if (!q) return base;
+    return base.filter((item) => {
+      const haystack = [
+        item.name,
+        item.form.companyName,
+        item.form.year,
+        item.form.sector,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [gallery, gallerySearch]);
 
   const uiFieldClass =
     "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-slate-500";
@@ -599,7 +687,182 @@ export default function App() {
     setAccentColor("#1f5fae");
     setEyeDropperError("");
     setCoverVersion((prev) => prev + 1);
+    setActiveCoverId(null);
+    setCoverName("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const loadSavedCover = (item: SavedCover) => {
+    setForm(item.form);
+    setLogoDataUrl(item.logoUrl || "");
+    setLogoName(item.logoName || "");
+    setAccentColor(item.accentColor);
+    setActiveCoverId(item.id);
+    setCoverName(item.name);
+    setCoverVersion((prev) => prev + 1);
+    setSaveMessage(`Capa “${item.name}” carregada.`);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const buildCoverPayload = (existingId?: string): SavedCover | null => {
+    const safeName = coverName.trim();
+    if (!safeName) {
+      setSaveMessage("Dá um nome à capa primeiro.");
+      return null;
+    }
+    const now = new Date().toISOString();
+    const current = existingId
+      ? gallery.find((item) => item.id === existingId)
+      : null;
+    return {
+      id: existingId || makeId(),
+      name: safeName,
+      form: { ...form },
+      accentColor,
+      logoUrl: logoDataUrl,
+      logoName,
+      createdAt: current?.createdAt || now,
+      updatedAt: now,
+    };
+  };
+
+  const handleSaveNew = async () => {
+    const payload = buildCoverPayload();
+    if (!payload) return;
+
+    const { data, error } = await supabase
+      .from("covers")
+      .insert({
+        name: payload.name,
+        form: payload.form,
+        accent_color: payload.accentColor,
+        logo_url: payload.logoUrl,
+        logo_name: payload.logoName,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erro ao guardar capa:", error);
+      setSaveMessage("Erro ao guardar a capa.");
+      return;
+    }
+
+    const saved: SavedCover = {
+      id: data.id,
+      name: data.name,
+      form: data.form as FormState,
+      accentColor: data.accent_color,
+      logoUrl: data.logo_url || "",
+      logoName: data.logo_name || "",
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+
+    setGallery((prev) => [saved, ...prev]);
+    setActiveCoverId(saved.id);
+    setSaveMessage(`Capa “${saved.name}” guardada na Galeria.`);
+  };
+
+  const handleUpdateExisting = async () => {
+    if (!activeCoverId) {
+      await handleSaveNew();
+      return;
+    }
+
+    const payload = buildCoverPayload(activeCoverId);
+    if (!payload) return;
+
+    const { data, error } = await supabase
+      .from("covers")
+      .update({
+        name: payload.name,
+        form: payload.form,
+        accent_color: payload.accentColor,
+        logo_url: payload.logoUrl,
+        logo_name: payload.logoName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", activeCoverId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erro ao atualizar capa:", error);
+      setSaveMessage("Erro ao atualizar a capa.");
+      return;
+    }
+
+    const updated: SavedCover = {
+      id: data.id,
+      name: data.name,
+      form: data.form as FormState,
+      accentColor: data.accent_color,
+      logoUrl: data.logo_url || "",
+      logoName: data.logo_name || "",
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+
+    setGallery((prev) =>
+      prev.map((item) => (item.id === activeCoverId ? updated : item)),
+    );
+    setSaveMessage(`Capa “${updated.name}” atualizada.`);
+  };
+
+  const handleDuplicate = async (item: SavedCover) => {
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from("covers")
+      .insert({
+        name: `${item.name} - cópia`,
+        form: item.form,
+        accent_color: item.accentColor,
+        logo_url: item.logoUrl,
+        logo_name: item.logoName,
+        updated_at: now,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erro ao duplicar capa:", error);
+      setSaveMessage("Erro ao duplicar a capa.");
+      return;
+    }
+
+    const copy: SavedCover = {
+      id: data.id,
+      name: data.name,
+      form: data.form as FormState,
+      accentColor: data.accent_color,
+      logoUrl: data.logo_url || "",
+      logoName: data.logo_name || "",
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
+
+    setGallery((prev) => [copy, ...prev]);
+    setSaveMessage(`Capa “${item.name}” duplicada.`);
+  };
+
+  const handleDelete = async (itemId: string) => {
+    const target = gallery.find((item) => item.id === itemId);
+
+    const { error } = await supabase.from("covers").delete().eq("id", itemId);
+
+    if (error) {
+      console.error("Erro ao apagar capa:", error);
+      setSaveMessage("Erro ao apagar a capa.");
+      return;
+    }
+
+    setGallery((prev) => prev.filter((item) => item.id !== itemId));
+    if (activeCoverId === itemId) {
+      resetCover();
+    }
+    if (target) setSaveMessage(`Capa “${target.name}” apagada.`);
   };
 
   const handlePrint = () => window.print();
@@ -687,26 +950,33 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">
-                Gerador de Capas
+                Gerador de Capas 2.0
               </h1>
-              <p className="text-sm text-slate-500">Relatórios e Contas</p>
+              <p className="text-sm text-slate-500">
+                Nova capa + Galeria de Capas
+              </p>
             </div>
           </div>
 
-          <button
-            onClick={resetCover}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            Nova capa
-          </button>
+          <div className="flex items-center gap-3">
+            {saveMessage ? (
+              <span className="text-sm text-slate-500">{saveMessage}</span>
+            ) : null}
+            <button
+              onClick={resetCover}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+            >
+              Nova capa
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="print-shell mx-auto grid max-w-[1480px] gap-6 p-5 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <div className="print-shell mx-auto grid max-w-[1680px] gap-6 p-5 lg:grid-cols-[360px_380px_minmax(0,1fr)]">
         <aside className="no-print space-y-4">
           <p className={`px-1 text-[15px] leading-7 ${uiSubtleTextClass}`}>
-            Preencha os dados da empresa e gere uma capa institucional limpa e
-            pronta para PDF.
+            Configura a capa, vê a pré-visualização e só no fim guarda na
+            Galeria.
           </p>
 
           <Card title="Dados da Empresa" icon={FileText}>
@@ -986,28 +1256,214 @@ export default function App() {
           </Card>
         </aside>
 
+        <aside className="no-print space-y-4">
+          <Card title="Galeria de Capas" icon={LayoutGrid}>
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-slate-900 outline-none focus:border-slate-500"
+                  value={gallerySearch}
+                  onChange={(e) => setGallerySearch(e.target.value)}
+                  placeholder="Procurar capa guardada"
+                />
+              </div>
+
+              <div className={`rounded-xl border p-3 ${uiPanelClass}`}>
+                <div className="text-sm font-medium text-slate-700">
+                  {gallery.length}{" "}
+                  {gallery.length === 1 ? "capa guardada" : "capas guardadas"}
+                </div>
+                <div className="mt-1 text-xs text-slate-500">
+                  Guardadas no Supabase nesta versão 2.0.
+                </div>
+              </div>
+
+              <div className="max-h-[920px] space-y-3 overflow-auto pr-1">
+                {filteredGallery.length ? (
+                  filteredGallery.map((item) => {
+                    const itemSector = item.form.sector
+                      ? sectorConfig[item.form.sector as SectorKey]
+                      : null;
+                    return (
+                      <div
+                        key={item.id}
+                        className={`rounded-2xl border p-4 shadow-sm ${
+                          activeCoverId === item.id
+                            ? "border-slate-900 bg-slate-50"
+                            : "border-slate-200 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold text-slate-900">
+                              {item.name}
+                            </div>
+                            <div className="mt-1 text-xs text-slate-500">
+                              {item.form.companyName || "Sem empresa"}
+                            </div>
+                          </div>
+                          <div
+                            className="h-5 w-5 shrink-0 rounded-md border border-slate-200"
+                            style={{ backgroundColor: item.accentColor }}
+                          />
+                        </div>
+
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+                          {item.form.year ? (
+                            <span className="rounded-full bg-slate-100 px-2 py-1">
+                              {item.form.year}
+                            </span>
+                          ) : null}
+                          {item.form.sector ? (
+                            <span className="rounded-full bg-slate-100 px-2 py-1">
+                              {item.form.sector}
+                            </span>
+                          ) : null}
+                          <span className="rounded-full bg-slate-100 px-2 py-1">
+                            {item.form.themeMode === "dark"
+                              ? "Capa escura"
+                              : "Capa clara"}
+                          </span>
+                        </div>
+
+                        <div className="mt-3 h-20 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                          <div
+                            className="h-full w-full"
+                            style={{
+                              backgroundImage: itemSector
+                                ? `url(${itemSector.image})`
+                                : "none",
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              opacity: 0.65,
+                            }}
+                          />
+                        </div>
+
+                        <div className="mt-3 text-[11px] leading-5 text-slate-500">
+                          Atualizada em {formatDateTime(item.updatedAt)}
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => loadSavedCover(item)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                          >
+                            <FilePenLine className="h-4 w-4" />
+                            Abrir
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDuplicate(item)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                          >
+                            <Copy className="h-4 w-4" />
+                            Duplicar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              loadSavedCover(item);
+                              setTimeout(() => window.print(), 80);
+                            }}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                          >
+                            <Download className="h-4 w-4" />
+                            PDF
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                            className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Apagar
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-8 text-center">
+                    <LayoutGrid className="mx-auto h-8 w-8 text-slate-300" />
+                    <div className="mt-3 text-sm font-medium text-slate-700">
+                      Galeria vazia
+                    </div>
+                    <div className="mt-1 text-xs leading-5 text-slate-500">
+                      Guarda a primeira capa com nome para começar a tua
+                      galeria.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        </aside>
+
         <main className="space-y-4">
           <div
-            className={`no-print flex items-center justify-between rounded-2xl border px-5 py-4 shadow-sm ${uiPreviewCardClass}`}
+            className={`no-print space-y-4 rounded-2xl border px-5 py-4 shadow-sm ${uiPreviewCardClass}`}
           >
-            <div>
-              <h2 className="text-xl font-semibold text-slate-800">
-                Pré-visualização
-              </h2>
-              <p className={`text-sm ${uiSubtleTextClass}`}>
-                Modelo institucional com fundo do setor e cor retirada do
-                logotipo.
-              </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Pré-visualização
+                </h2>
+                <p className={`text-sm ${uiSubtleTextClass}`}>
+                  Modelo institucional com fundo do setor, cor personalizada e
+                  pronto para a Galeria.
+                </p>
+              </div>
+              <button
+                onClick={handlePrint}
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm"
+                style={{ backgroundColor: accentColor }}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Download className="h-4 w-4" /> Descarregar PDF
+                </span>
+              </button>
             </div>
-            <button
-              onClick={handlePrint}
-              className="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm"
-              style={{ backgroundColor: accentColor }}
-            >
-              <span className="inline-flex items-center gap-2">
-                <Download className="h-4 w-4" /> Descarregar PDF
-              </span>
-            </button>
+
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
+              <Field label="Nome da capa" required>
+                <input
+                  className={uiFieldClass}
+                  value={coverName}
+                  onChange={(e) => setCoverName(e.target.value)}
+                  placeholder="Ex.: Freitas e Fortes 2025"
+                />
+              </Field>
+              <button
+                type="button"
+                onClick={handleSaveNew}
+                className="flex h-[46px] items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              >
+                <Save className="h-4 w-4" />
+                Guardar
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateExisting}
+                className="flex h-[46px] items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              >
+                <FilePenLine className="h-4 w-4" />
+                Atualizar
+              </button>
+            </div>
+
+            <div className={`rounded-xl border p-3 ${uiPanelClass}`}>
+              <div className="text-xs uppercase tracking-[0.12em] text-slate-500">
+                Estado
+              </div>
+              <div className="mt-2 text-sm font-medium text-slate-700">
+                {activeCoverId
+                  ? "A editar capa guardada"
+                  : "Nova capa ainda não guardada"}
+              </div>
+            </div>
           </div>
 
           <div
@@ -1164,7 +1620,7 @@ export default function App() {
       </div>
 
       <footer className="no-print border-t border-slate-200 bg-white/95">
-        <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-4 px-5 py-3 text-sm text-slate-500">
+        <div className="mx-auto flex max-w-[1680px] items-center justify-between gap-4 px-5 py-3 text-sm text-slate-500">
           <div className="flex items-center gap-3">
             <img
               src={KZO_COPYRIGHT_LOGO}
@@ -1175,7 +1631,7 @@ export default function App() {
               © {new Date().getFullYear()} KZO. Todos os direitos reservados.
             </span>
           </div>
-          <span className="text-slate-400">Gerador de Capas</span>
+          <span className="text-slate-400">Gerador de Capas 2.0</span>
         </div>
       </footer>
     </div>
