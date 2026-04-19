@@ -554,6 +554,7 @@ export default function App() {
   const [logoName, setLogoName] = useState("");
   const [accentColor, setAccentColor] = useState<string>("#1f5fae");
   const [autoExtractLogoColor, setAutoExtractLogoColor] = useState(false);
+  const [isCustomColorLocked, setIsCustomColorLocked] = useState(false);
   const [eyeDropperError, setEyeDropperError] = useState("");
   const [coverVersion, setCoverVersion] = useState(0);
   const [gallery, setGallery] = useState<SavedCover[]>([]);
@@ -653,7 +654,7 @@ export default function App() {
   const processLogoFile = async (file?: File) => {
     if (!file) return;
     setLogoName(file.name);
-    setAutoExtractLogoColor(true);
+    setAutoExtractLogoColor(!isCustomColorLocked);
     const dataUrl = await readFileAsDataURL(file);
     setLogoDataUrl(dataUrl);
   };
@@ -672,7 +673,7 @@ export default function App() {
   const handleLogoProbeLoad = () => {
     if (!logoProbeRef.current || !autoExtractLogoColor) return;
     const extracted = getAverageColorFromImage(logoProbeRef.current);
-    if (extracted) setAccentColor(extracted);
+    if (extracted && !isCustomColorLocked) setAccentColor(extracted);
     setAutoExtractLogoColor(false);
   };
 
@@ -680,7 +681,8 @@ export default function App() {
     setAutoExtractLogoColor(false);
     setLogoDataUrl("");
     setLogoName("");
-    setAccentColor(selectedSector ? selectedSector.accent : "#1f5fae");
+    if (!isCustomColorLocked)
+      setAccentColor(selectedSector ? selectedSector.accent : "#1f5fae");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -690,6 +692,7 @@ export default function App() {
     setLogoDataUrl("");
     setLogoName("");
     setAccentColor("#1f5fae");
+    setIsCustomColorLocked(false);
     setEyeDropperError("");
     setCoverVersion((prev) => prev + 1);
     setActiveCoverId(null);
@@ -703,6 +706,7 @@ export default function App() {
     setLogoDataUrl(item.logoUrl || "");
     setLogoName(item.logoName || "");
     setAccentColor(item.accentColor);
+    setIsCustomColorLocked(true);
     setActiveCoverId(item.id);
     setCoverName(item.name);
     setCoverVersion((prev) => prev + 1);
@@ -888,7 +892,10 @@ export default function App() {
       ).EyeDropper();
 
       const result = await eyeDropper.open();
-      if (result?.sRGBHex) setAccentColor(result.sRGBHex);
+      if (result?.sRGBHex) {
+        setAccentColor(result.sRGBHex);
+        setIsCustomColorLocked(true);
+      }
     } catch (error) {
       if ((error as Error)?.name !== "AbortError") {
         setEyeDropperError("Não foi possível capturar a cor.");
@@ -1051,7 +1058,7 @@ export default function App() {
                   onChange={(e) => {
                     const next = e.target.value as SectorValue;
                     handleChange("sector", next);
-                    if (next)
+                    if (next && !isCustomColorLocked)
                       setAccentColor(sectorConfig[next as SectorKey].accent);
                   }}
                 >
@@ -1155,7 +1162,10 @@ export default function App() {
                   <input
                     type="color"
                     value={accentColor}
-                    onChange={(e) => setAccentColor(e.target.value)}
+                    onChange={(e) => {
+                      setAccentColor(e.target.value);
+                      setIsCustomColorLocked(true);
+                    }}
                     className="h-10 w-16 rounded border border-slate-300 bg-transparent p-1"
                   />
                   <span className="text-sm text-slate-600">{accentColor}</span>
@@ -1187,7 +1197,10 @@ export default function App() {
                   <ColorSwatch
                     key={color}
                     color={color}
-                    onUse={setAccentColor}
+                    onUse={(nextColor) => {
+                      setAccentColor(nextColor);
+                      setIsCustomColorLocked(true);
+                    }}
                   />
                 ))}
               </div>
