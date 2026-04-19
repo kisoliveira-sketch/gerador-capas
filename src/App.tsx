@@ -105,6 +105,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1600&q=80",
     icon: Factory,
   },
+  "Medicina Alternativa": {
+    accent: "#5f8f7b",
+    image:
+      "https://pjubouhfowmcqlspyoaz.supabase.co/storage/v1/object/public/assets/acunpuntura.jpg",
+    icon: HeartPulse,
+  },
   Informática: {
     accent: "#1f5fae",
     image:
