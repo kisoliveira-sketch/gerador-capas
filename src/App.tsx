@@ -983,7 +983,8 @@ export default function App() {
             ) : null}
             <button
               onClick={resetCover}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+              className="rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+              style={{ backgroundColor: accentColor }}
             >
               Nova capa
             </button>
@@ -992,28 +993,36 @@ export default function App() {
       </header>
 
       <div className="print-shell mx-auto grid max-w-[1680px] gap-6 p-5 lg:grid-cols-[360px_380px_minmax(0,1fr)]">
-        <aside className="no-print space-y-4">
-          <p className={`px-1 text-[15px] leading-7 ${uiSubtleTextClass}`}>
-            Configura a capa, vê a pré-visualização e só no fim guarda na
-            Galeria.
-          </p>
+        <div className="no-print col-span-full">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div className="text-[14px] text-slate-600">
+              <span className="font-medium text-slate-800">Dica:</span>{" "}
+              Configura a capa, vê a pré-visualização e só no fim guarda na
+              Galeria.
+            </div>
+          </div>
+        </div>
+        <aside className="no-print space-y-4 sticky top-[90px] h-fit self-start">
+          <div className="text-xs text-slate-400 px-1">
+            Passo 1: Configurar dados
+          </div>
 
           <Card title="Dados da Empresa" icon={FileText}>
+            <div className="mb-2 text-xs text-slate-500">
+              Informação essencial da empresa
+            </div>
             <div className="space-y-4">
-              <Field label="Nome da empresa" required>
-                <input
-                  className={uiFieldClass}
-                  value={form.companyName}
-                  onChange={(e) => handleChange("companyName", e.target.value)}
-                />
-              </Field>
-
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Ano do relatório" required>
+                <Field label="Nome da empresa" required>
                   <input
                     className={uiFieldClass}
-                    value={form.year}
-                    onChange={(e) => handleChange("year", e.target.value)}
+                    value={form.companyName}
+                    onChange={(e) =>
+                      handleChange("companyName", e.target.value)
+                    }
                   />
                 </Field>
                 <Field label="NIF" required>
@@ -1025,15 +1034,14 @@ export default function App() {
                 </Field>
               </div>
 
-              <Field label="Morada" required>
-                <textarea
-                  className={`${uiFieldClass} min-h-24`}
-                  value={form.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
-                />
-              </Field>
-
               <div className="grid grid-cols-2 gap-3">
+                <Field label="Ano do relatório" required>
+                  <input
+                    className={uiFieldClass}
+                    value={form.year}
+                    onChange={(e) => handleChange("year", e.target.value)}
+                  />
+                </Field>
                 <Field label="Telefone" required>
                   <input
                     className={uiFieldClass}
@@ -1041,6 +1049,9 @@ export default function App() {
                     onChange={(e) => handleChange("phone", e.target.value)}
                   />
                 </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <Field label="Email" required>
                   <input
                     className={uiFieldClass}
@@ -1048,11 +1059,23 @@ export default function App() {
                     onChange={(e) => handleChange("email", e.target.value)}
                   />
                 </Field>
+                <div />
               </div>
+
+              <Field label="Morada" required>
+                <textarea
+                  className={`${uiFieldClass} min-h-20`}
+                  value={form.address}
+                  onChange={(e) => handleChange("address", e.target.value)}
+                />
+              </Field>
             </div>
           </Card>
 
           <Card title="Setor" icon={LayoutTemplate}>
+            <div className="mb-2 text-xs text-slate-500">
+              Define o estilo visual automaticamente
+            </div>
             <div className="space-y-3">
               <p className={`text-sm ${uiSubtleTextClass}`}>
                 Escolhe o ramo para trocar o fundo automaticamente.
@@ -1080,6 +1103,9 @@ export default function App() {
           </Card>
 
           <Card title="Logotipo da Empresa" icon={Sparkles}>
+            <div className="mb-2 text-xs text-slate-500">
+              Carrega o logotipo da empresa (PNG recomendado)
+            </div>
             <div className="space-y-4">
               <input
                 ref={fileInputRef}
@@ -1158,6 +1184,9 @@ export default function App() {
           </Card>
 
           <Card title="Cor Principal" icon={PaintBucket}>
+            <div className="mb-2 text-xs text-slate-500">
+              Escolhe ou ajusta a cor principal da capa
+            </div>
             <div className="space-y-4">
               <div className={`rounded-xl border p-3 ${uiPanelClass}`}>
                 <div className="flex items-center gap-3">
@@ -1214,6 +1243,9 @@ export default function App() {
           </Card>
 
           <Card title="Tema" icon={isDarkMode ? Moon : Sun}>
+            <div className="mb-2 text-xs text-slate-500">
+              Escolhe entre versão clara ou escura
+            </div>
             <div className="space-y-4 text-sm text-slate-600">
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -1245,6 +1277,9 @@ export default function App() {
           </Card>
 
           <Card title="A Empresa que Elabora" icon={Briefcase}>
+            <div className="mb-2 text-xs text-slate-500">
+              Configuração da entidade responsável
+            </div>
             <div className="space-y-4 text-sm text-slate-600">
               <Field label="Logo a usar">
                 <select
@@ -1282,7 +1317,13 @@ export default function App() {
         </aside>
 
         <aside className="no-print space-y-4">
+          <div className="text-xs text-slate-400 px-1">
+            Passo 2: Gerir capas
+          </div>
           <Card title="Galeria de Capas" icon={LayoutGrid}>
+            <div className="mb-2 text-xs text-slate-500">
+              Capas guardadas e reutilizáveis
+            </div>
             <div className="space-y-4">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -1428,9 +1469,15 @@ export default function App() {
         </aside>
 
         <main className="space-y-4">
+          <div className="text-xs text-slate-400 px-1">
+            Passo 3: Rever e guardar
+          </div>
           <div
             className={`no-print space-y-4 rounded-2xl border px-5 py-4 shadow-sm ${uiPreviewCardClass}`}
           >
+            <div className="text-xs text-slate-500">
+              Pré-visualização em tempo real
+            </div>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-slate-800">
