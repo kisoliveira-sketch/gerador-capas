@@ -1484,7 +1484,7 @@ export default function App() {
         </aside>
 
         <main className="space-y-4">
-          <div className="text-xs text-slate-400 px-1">
+          <div className="no-print text-xs text-slate-400 px-1">
             Passo 3: Rever e guardar
           </div>
           <div
