@@ -121,7 +121,7 @@ const sectorConfig = {
   Indústria: {
     accent: "#475569",
     image:
-      "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1600&q=80",
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/84126632_3254382014591858_3459719057417175040_n.jpg",
     icon: Factory,
   },
   Informática: {
@@ -881,6 +881,28 @@ export default function App() {
   const handleDelete = async (itemId: string) => {
     const target = gallery.find((item) => item.id === itemId);
 
+    // 🧠 1. Apagar logo do storage (se existir)
+    if (target?.logoUrl) {
+      try {
+        // extrai path depois de /object/public/cover-assets/
+        const parts = target.logoUrl.split("/cover-assets/");
+        if (parts[1]) {
+          const filePath = parts[1];
+
+          const { error: storageError } = await supabase.storage
+            .from("cover-assets")
+            .remove([filePath]);
+
+          if (storageError) {
+            console.warn("Erro ao apagar logo:", storageError.message);
+          }
+        }
+      } catch (err) {
+        console.warn("Erro ao processar remoção do logo:", err);
+      }
+    }
+
+    // 🧠 2. Apagar registo da base de dados
     const { error } = await supabase.from("covers").delete().eq("id", itemId);
 
     if (error) {
@@ -890,9 +912,11 @@ export default function App() {
     }
 
     setGallery((prev) => prev.filter((item) => item.id !== itemId));
+
     if (activeCoverId === itemId) {
       resetCover();
     }
+
     if (target) setSaveMessage(`Capa “${target.name}” apagada.`);
   };
 
@@ -930,10 +954,40 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
         @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
+  body * {
+    visibility: hidden !important;
+  }
+
+  .cover-page,
+  .cover-page * {
+    visibility: visible !important;
+  }
+
+  .cover-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+}
           html, body {
             width: 210mm !important;
             height: 297mm !important;
