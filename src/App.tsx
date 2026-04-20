@@ -46,6 +46,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80",
     icon: UtensilsCrossed,
   },
+  "Ambiente & Segurança": {
+    accent: "#3f7f6b",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/seguranca%20no%20trabalho.jpg",
+    icon: HardHat,
+  },
   Arquitetura: {
     accent: "#0f766e",
     image:
