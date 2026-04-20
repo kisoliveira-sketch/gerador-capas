@@ -255,15 +255,6 @@ function formatDateTime(dateIso: string) {
   return d.toLocaleString();
 }
 
-function readFileAsDataURL(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 function rgbToHex(r: number, g: number, b: number): string {
   return (
     "#" +
@@ -659,10 +650,34 @@ export default function App() {
 
   const processLogoFile = async (file?: File) => {
     if (!file) return;
+
     setLogoName(file.name);
     setAutoExtractLogoColor(!isCustomColorLocked);
-    const dataUrl = await readFileAsDataURL(file);
-    setLogoDataUrl(dataUrl);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("cover-assets")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error("Erro upload:", uploadError);
+        setSaveMessage(`Erro upload: ${uploadError.message}`);
+        return;
+      }
+
+      const { data } = supabase.storage
+        .from("cover-assets")
+        .getPublicUrl(filePath);
+
+      setLogoDataUrl(data.publicUrl);
+    } catch (err) {
+      console.error("Erro geral:", err);
+      setSaveMessage("Erro ao processar logo");
+    }
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
