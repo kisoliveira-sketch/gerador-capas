@@ -975,6 +975,30 @@ export default function App() {
     box-shadow: none !important;
   }
 
+  .no-print {
+    display: none !important;
+  }
+
+  .print-shell {
+    display: block !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .cover-print-wrap {
+    display: block !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
   @page {
     size: A4 portrait;
     margin: 0;
@@ -986,18 +1010,9 @@ export default function App() {
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
+    overflow: hidden !important;
   }
-}
-          html, body {
-            width: 210mm !important;
-            height: 297mm !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            overflow: hidden !important;
-          }
-          .no-print { display: none !important; }
-          .print-shell {
+} {
             display: block !important;
             width: 210mm !important;
             height: 297mm !important;
