@@ -124,6 +124,12 @@ const sectorConfig = {
       "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/84126632_3254382014591858_3459719057417175040_n.jpg",
     icon: Factory,
   },
+  "Industria pesqueira": {
+    accent: "#0f766e",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/84126632_3254382014591858_3459719057417175040_n.jpg",
+    icon: Factory,
+  },
   Informática: {
     accent: "#1f5fae",
     image:
@@ -220,6 +226,7 @@ type FormState = {
   accountingFirm: string;
   accountingLogo: AccountingLogoKey;
   themeMode: ThemeMode;
+  showFooter: boolean; // NEW
 };
 
 type SavedCover = {
@@ -244,6 +251,7 @@ const initialForm: FormState = {
   accountingFirm: "VC Contabilidade & Serviços",
   accountingLogo: "branco",
   themeMode: "light",
+  showFooter: true, // NEW default
 };
 
 function makeId() {
@@ -954,65 +962,32 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
         @media print {
-  body * {
-    visibility: hidden !important;
-  }
+          body * {
+            visibility: hidden !important;
+          }
 
-  .cover-page,
-  .cover-page * {
-    visibility: visible !important;
-  }
+          .cover-page,
+          .cover-page * {
+            visibility: visible !important;
+          }
 
-  .cover-page {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 210mm !important;
-    height: 297mm !important;
-    max-width: none !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
+          .cover-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-width: none !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
 
-  .no-print {
-    display: none !important;
-  }
+          .no-print {
+            display: none !important;
+          }
 
-  .print-shell {
-    display: block !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    max-width: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  .cover-print-wrap {
-    display: block !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-
-  @page {
-    size: A4 portrait;
-    margin: 0;
-  }
-
-  html, body {
-    width: 210mm !important;
-    height: 297mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: white !important;
-    overflow: hidden !important;
-  }
-} {
+          .print-shell {
             display: block !important;
             width: 210mm !important;
             height: 297mm !important;
@@ -1020,6 +995,7 @@ export default function App() {
             padding: 0 !important;
             margin: 0 !important;
           }
+
           .cover-print-wrap {
             display: block !important;
             width: 210mm !important;
@@ -1030,17 +1006,19 @@ export default function App() {
             box-shadow: none !important;
             background: transparent !important;
           }
-          .cover-page {
+
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+
+          html, body {
             width: 210mm !important;
             height: 297mm !important;
-            max-width: none !important;
-            aspect-ratio: auto !important;
             margin: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
+            padding: 0 !important;
+            background: white !important;
             overflow: hidden !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
           }
         }
       `}</style>
@@ -1357,6 +1335,16 @@ export default function App() {
                   Capa escura
                 </button>
               </div>
+
+              {/* NEW: Footer toggle */}
+              <div className="flex items-center justify-between rounded-xl border border-slate-300 bg-white px-4 py-3">
+                <span className="text-sm">Mostrar rodapé</span>
+                <input
+                  type="checkbox"
+                  checked={form.showFooter}
+                  onChange={(e) => handleChange("showFooter", e.target.checked)}
+                />
+              </div>
             </div>
           </Card>
 
@@ -1552,7 +1540,7 @@ export default function App() {
           </Card>
         </aside>
 
-        <main className="space-y-4">
+        <main className="space-y-4 w-full max-w-[1040px] mx-auto">
           <div className="no-print text-xs text-slate-400 px-1">
             Passo 3: Rever e guardar
           </div>
@@ -1623,152 +1611,173 @@ export default function App() {
           </div>
 
           <div
-            className={`cover-print-wrap flex justify-center rounded-3xl border p-4 shadow-sm ${uiPreviewCardClass}`}
+            className={`rounded-2xl border px-5 py-5 shadow-sm ${uiPreviewCardClass}`}
           >
-            <div
-              key={coverVersion}
-              className="cover-page relative aspect-[210/297] w-full max-w-[820px] overflow-hidden rounded-[18px] bg-white"
-            >
+            <div className="mb-4 text-xs text-slate-500">Capa</div>
+            <div className="cover-print-wrap mx-auto flex w-full max-w-[760px] justify-center">
               <div
-                className="absolute inset-0"
-                style={{ backgroundColor: coverBaseBg }}
-              />
-
-              <div
-                className="absolute inset-0 opacity-[0.08]"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at center, rgba(15,23,42,0.24) 1px, transparent 1px)",
-                  backgroundSize: "20px 20px",
-                }}
-              />
-
-              <div
-                className="absolute inset-x-0 top-0 bottom-[12.5%]"
-                style={{
-                  backgroundImage: selectedSector
-                    ? `url(${selectedSector.image})`
-                    : "none",
-                  backgroundPosition: "center",
-                  backgroundSize: "cover",
-                  backgroundRepeat: "no-repeat",
-                  opacity: isDarkMode ? 0.42 : 0.52,
-                  filter:
-                    "blur(0.8px) saturate(0.82) contrast(1.02) brightness(1.04)",
-                  transform: "scale(1.04)",
-                  transformOrigin: "center",
-                }}
-              />
-
-              <div
-                className="absolute inset-x-0 top-0 bottom-[12.5%]"
-                style={{
-                  background: isDarkMode
-                    ? "linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.82) 16%, rgba(15,23,42,0.55) 40%, rgba(15,23,42,0.18) 72%, rgba(15,23,42,0.00) 100%)"
-                    : "linear-gradient(180deg, rgba(245,243,238,1) 0%, rgba(245,243,238,0.95) 12%, rgba(245,243,238,0.75) 35%, rgba(245,243,238,0.15) 70%, rgba(245,243,238,0.00) 100%)",
-                }}
-              />
-
-              <div
-                className="absolute inset-x-0 top-0 bottom-[12.5%]"
-                style={{
-                  background: isDarkMode
-                    ? "linear-gradient(90deg, rgba(15,23,42,0.98) 0%, rgba(15,23,42,0.9) 24%, rgba(15,23,42,0.7) 45%, rgba(15,23,42,0.2) 74%, rgba(15,23,42,0.04) 100%)"
-                    : "linear-gradient(90deg, rgba(245,243,238,0.94) 0%, rgba(245,243,238,0.86) 22%, rgba(245,243,238,0.72) 42%, rgba(245,243,238,0.16) 72%, rgba(245,243,238,0.02) 100%)",
-                }}
-              />
-
-              <TopRightTriangles color={accentColor} darkMode={isDarkMode} />
-
-              <div className="absolute left-[8%] top-[8%] z-10 max-w-[34%]">
-                <div className="mb-3 flex min-h-[58px] items-center">
-                  {logoDataUrl ? (
-                    <img
-                      src={logoDataUrl}
-                      alt="Logo empresa"
-                      className="max-h-[96px] max-w-[340px] object-contain"
-                    />
-                  ) : (
-                    <div
-                      className="text-[clamp(18px,1.8vw,28px)] font-semibold tracking-wide"
-                      style={{ color: isDarkMode ? "#f8fafc" : accentColor }}
-                    >
-                      LOGO
-                    </div>
-                  )}
-                </div>
-
+                key={coverVersion}
+                className="cover-page relative mx-auto aspect-[210/297] w-full max-w-[760px] overflow-hidden rounded-[18px] bg-white"
+              >
                 <div
-                  className="mb-6 max-w-[300px] text-[clamp(16px,1.35vw,24px)] font-semibold leading-[1.15]"
-                  style={{ color: coverTextPrimary }}
-                >
-                  {form.companyName || "NOME DA EMPRESA"}
-                </div>
-
-                <div
-                  className="whitespace-pre-line text-[clamp(12px,1.05vw,18px)] leading-[1.55]"
-                  style={{ color: coverTextSecondary }}
-                >
-                  {form.address}
-                  {form.phone ? `\nTelefone: ${form.phone}` : ""}
-                  {form.email ? `\nEmail: ${form.email}` : ""}
-                  {form.nif ? `\nNIF ${form.nif}` : ""}
-                </div>
-              </div>
-
-              <div className="absolute left-[10%] top-[50%] z-10 flex w-[58%] -translate-y-1/2 flex-col items-start">
-                <DotGrid
-                  count={48}
-                  columns={8}
-                  gap="7px"
-                  dotSize="3px"
-                  color={accentColor}
-                  className="absolute left-[-88px] top-[4px]"
+                  className="absolute inset-0"
+                  style={{ backgroundColor: coverBaseBg }}
                 />
 
-                <h2
-                  className="text-left text-[clamp(66px,6.8vw,126px)] font-semibold uppercase leading-[0.92] tracking-[0.01em]"
-                  style={{ color: coverTextPrimary }}
-                >
-                  RELATÓRIO
-                  <br />& CONTAS
-                </h2>
+                <div
+                  className="absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at center, rgba(15,23,42,0.24) 1px, transparent 1px)",
+                    backgroundSize: "20px 20px",
+                  }}
+                />
 
-                <div className="mt-6 flex items-center gap-0">
-                  <div className="flex h-[clamp(44px,4.3vw,62px)] w-fit min-w-[92px] items-center justify-center bg-[#20344a] px-4 text-[clamp(22px,1.9vw,30px)] tracking-[0.18em] text-white">
-                    ANO
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: selectedSector
+                      ? `url(${selectedSector.image})`
+                      : "none",
+                    backgroundPosition: "center",
+                    backgroundSize: "cover",
+                    backgroundRepeat: "no-repeat",
+                    opacity: isDarkMode ? 0.42 : 0.52,
+                    filter:
+                      "blur(0.8px) saturate(0.82) contrast(1.02) brightness(1.04)",
+                    transform: "scale(1.04)",
+                    transformOrigin: "center",
+                  }}
+                />
+
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: isDarkMode
+                      ? "linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.82) 16%, rgba(15,23,42,0.55) 40%, rgba(15,23,42,0.18) 72%, rgba(15,23,42,0.00) 100%)"
+                      : "linear-gradient(180deg, rgba(245,243,238,1) 0%, rgba(245,243,238,0.95) 12%, rgba(245,243,238,0.75) 35%, rgba(245,243,238,0.15) 70%, rgba(245,243,238,0.00) 100%)",
+                  }}
+                />
+
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: isDarkMode
+                      ? "linear-gradient(90deg, rgba(15,23,42,0.98) 0%, rgba(15,23,42,0.9) 24%, rgba(15,23,42,0.7) 45%, rgba(15,23,42,0.2) 74%, rgba(15,23,42,0.04) 100%)"
+                      : "linear-gradient(90deg, rgba(245,243,238,0.94) 0%, rgba(245,243,238,0.86) 22%, rgba(245,243,238,0.72) 42%, rgba(245,243,238,0.16) 72%, rgba(245,243,238,0.02) 100%)",
+                  }}
+                />
+
+                <TopRightTriangles color={accentColor} darkMode={isDarkMode} />
+
+                <div className="absolute left-[10%] top-[8%] z-10 max-w-[34%]">
+                  <div className="mb-3 flex min-h-[58px] items-center">
+                    {logoDataUrl ? (
+                      <img
+                        src={logoDataUrl}
+                        alt="Logo empresa"
+                        className="max-h-[96px] max-w-[340px] object-contain"
+                      />
+                    ) : (
+                      <div
+                        className="text-[clamp(18px,1.8vw,28px)] font-semibold tracking-wide"
+                        style={{ color: isDarkMode ? "#f8fafc" : accentColor }}
+                      >
+                        LOGO
+                      </div>
+                    )}
                   </div>
+
                   <div
-                    className="flex h-[clamp(44px,4.3vw,62px)] w-fit min-w-[96px] items-center justify-center px-4 text-[clamp(28px,2.2vw,38px)] font-semibold text-white"
-                    style={{ backgroundColor: accentColor }}
+                    className="mb-6 max-w-[300px] text-[clamp(16px,1.35vw,24px)] font-semibold leading-[1.15]"
+                    style={{ color: coverTextPrimary }}
                   >
-                    {form.year}
+                    {form.companyName || "NOME DA EMPRESA"}
+                  </div>
+
+                  <div
+                    className="whitespace-pre-line text-[clamp(12px,1.05vw,18px)] leading-[1.55]"
+                    style={{ color: coverTextSecondary }}
+                  >
+                    {form.address}
+                    {form.phone
+                      ? `
+Telefone: ${form.phone}`
+                      : ""}
+                    {form.email
+                      ? `
+Email: ${form.email}`
+                      : ""}
+                    {form.nif
+                      ? `
+NIF ${form.nif}`
+                      : ""}
                   </div>
                 </div>
-              </div>
 
-              <div
-                className="absolute inset-x-0 bottom-0 h-[12.5%]"
-                style={{ backgroundColor: coverFooterBg, opacity: 0.96 }}
-              />
-
-              <div className="absolute inset-x-[8%] bottom-0 top-[87.5%] z-20 flex items-center justify-between text-white">
-                <div className="flex min-w-0 flex-col justify-center">
-                  <div className="mb-2 pl-[2px] text-[clamp(13px,1vw,17px)] leading-none opacity-90">
-                    Elaborado por:
-                  </div>
-                  <img
-                    src={selectedAccountingLogo}
-                    alt="VC Logo"
-                    className="h-[84px] object-contain"
+                <div className="absolute left-[10%] top-[50%] z-10 flex w-[58%] -translate-y-1/2 flex-col items-start">
+                  <DotGrid
+                    count={48}
+                    columns={8}
+                    gap="7px"
+                    dotSize="3px"
+                    color={accentColor}
+                    className="absolute left-[-88px] top-[4px]"
                   />
-                </div>
 
-                <div className="max-w-[34%] self-center text-right text-[12px] leading-[1.5] text-white/78">
-                  <div className="font-medium uppercase tracking-[0.08em]">
-                    {form.accountingFirm}
+                  <h2
+                    className="text-left text-[clamp(66px,6.8vw,126px)] font-semibold uppercase leading-[0.92] tracking-[0.01em]"
+                    style={{ color: coverTextPrimary }}
+                  >
+                    RELATÓRIO
+                    <br />& CONTAS
+                  </h2>
+
+                  <div className="mt-6 flex items-center gap-0">
+                    <div className="flex h-[clamp(44px,4.3vw,62px)] w-fit min-w-[92px] items-center justify-center bg-[#20344a] px-4 text-[clamp(22px,1.9vw,30px)] tracking-[0.18em] text-white">
+                      ANO
+                    </div>
+                    <div
+                      className="flex h-[clamp(44px,4.3vw,62px)] w-fit min-w-[96px] items-center justify-center px-4 text-[clamp(28px,2.2vw,38px)] font-semibold text-white"
+                      style={{ backgroundColor: accentColor }}
+                    >
+                      {form.year}
+                    </div>
                   </div>
                 </div>
+
+                {form.showFooter ? (
+                  <>
+                    <div
+                      className="absolute inset-x-0 bottom-0 h-[12.5%]"
+                      style={{ backgroundColor: coverFooterBg, opacity: 0.96 }}
+                    />
+
+                    <div className="absolute inset-x-[8%] bottom-0 top-[87.5%] z-20 flex items-center justify-between text-white">
+                      <div className="flex min-w-0 flex-col justify-center">
+                        <div className="mb-2 pl-[2px] text-[clamp(13px,1vw,17px)] leading-none opacity-90">
+                          Elaborado por:
+                        </div>
+                        <img
+                          src={selectedAccountingLogo}
+                          alt="VC Logo"
+                          className="h-[84px] object-contain"
+                        />
+                      </div>
+
+                      <div className="max-w-[34%] self-center text-right text-[12px] leading-[1.5] text-white/78">
+                        <div className="font-medium uppercase tracking-[0.08em]">
+                          {form.accountingFirm}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-[28px]"
+                    style={{ backgroundColor: accentColor }}
+                  />
+                )}
               </div>
             </div>
           </div>
