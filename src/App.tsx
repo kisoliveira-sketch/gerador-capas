@@ -1,36 +1,37 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "./lib/supabase";
 import {
-  Building2,
-  Briefcase,
-  Car,
-  Copy,
-  Download,
-  Factory,
-  FilePenLine,
-  FileText,
-  GraduationCap,
+  Wrench,
+  Ship,
+  Tractor,
+  UtensilsCrossed,
   HardHat,
-  HeartPulse,
   Home,
+  Car,
+  Store,
+  Briefcase,
+  GraduationCap,
+  Megaphone,
+  HeartPulse,
+  Building2,
+  Factory,
+  Monitor,
+  Truck,
+  LayoutTemplate,
+  Music4,
   Languages,
   LayoutGrid,
-  LayoutTemplate,
-  Megaphone,
-  Monitor,
-  Moon,
-  Music4,
-  PaintBucket,
-  Save,
-  Search,
+  FileText,
   Sparkles,
-  Store,
+  PaintBucket,
   Sun,
-  Tractor,
+  Moon,
+  Search,
+  FilePenLine,
+  Copy,
+  Download,
+  Save,
   Trash2,
-  Truck,
-  UtensilsCrossed,
-  Wrench,
 } from "lucide-react";
 
 const sectorConfig = {
@@ -129,6 +130,18 @@ const sectorConfig = {
     image:
       "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/84126632_3254382014591858_3459719057417175040_n.jpg",
     icon: Factory,
+  },
+  "Exploração marítima": {
+    accent: "#0ea5a4",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/exploracao_maritima/Untitled%20design-13.png",
+    icon: Ship,
+  },
+  "Importação & Serviços": {
+    accent: "#1f5fae",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/importacao_servicos.png",
+    icon: Briefcase,
   },
   Informática: {
     accent: "#1f5fae",
@@ -248,7 +261,8 @@ const initialForm: FormState = {
   phone: "",
   email: "",
   sector: "",
-  accountingFirm: "VC Contabilidade & Serviços",
+  accountingFirm: `VC - Contabilidade & Serviços, Lda
+Sociedade de Contabilistas Certificado.`,
   accountingLogo: "branco",
   themeMode: "light",
   showFooter: true, // NEW default
@@ -1765,8 +1779,8 @@ NIF ${form.nif}`
                         />
                       </div>
 
-                      <div className="max-w-[34%] self-center text-right text-[12px] leading-[1.5] text-white/78">
-                        <div className="font-medium uppercase tracking-[0.08em]">
+                      <div className="max-w-[42%] self-center text-right text-[12px] leading-[1.5] text-white/78">
+                        <div className="font-medium tracking-[0.04em] whitespace-pre-line">
                           {form.accountingFirm}
                         </div>
                       </div>
