@@ -101,6 +101,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80",
     icon: Megaphone,
   },
+  "Exploração marítima": {
+    accent: "#0ea5a4",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/exploracao_maritima/Untitled%20design-13.png",
+    icon: Ship,
+  },
   Funerárias: {
     accent: "#7a6a8c",
     image:
@@ -119,6 +125,12 @@ const sectorConfig = {
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80",
     icon: Building2,
   },
+  "Importação & Serviços": {
+    accent: "#1f5fae",
+    image:
+      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/importacao_servicos.png",
+    icon: Briefcase,
+  },
   Indústria: {
     accent: "#475569",
     image:
@@ -130,18 +142,6 @@ const sectorConfig = {
     image:
       "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/84126632_3254382014591858_3459719057417175040_n.jpg",
     icon: Factory,
-  },
-  "Exploração marítima": {
-    accent: "#0ea5a4",
-    image:
-      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/exploracao_maritima/Untitled%20design-13.png",
-    icon: Ship,
-  },
-  "Importação & Serviços": {
-    accent: "#1f5fae",
-    image:
-      "https://loaltgomeorjpmhdxzsy.supabase.co/storage/v1/object/public/cover-assets/importacao_servicos.png",
-    icon: Briefcase,
   },
   Informática: {
     accent: "#1f5fae",
