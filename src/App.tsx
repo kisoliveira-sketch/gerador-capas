@@ -253,6 +253,30 @@ type SavedCover = {
   updatedAt: string;
 };
 
+const DEFAULT_ACCOUNTING_FIRM = `VC - Contabilidade & Serviços, Lda
+Sociedade de Contabilistas Certificado.`;
+
+const normalizeSavedForm = (rawForm: Partial<FormState>): FormState => {
+  const oldDefaultValues = [
+    "VC Contabilidade & Serviços",
+    "VC - Contabilidade & Serviços, Lda",
+    "VC - Contabilidade & Serviços, Lda Sociedade de Contabilistas Certificado.",
+  ];
+
+  const shouldUseNewFooterText =
+    !rawForm.accountingFirm ||
+    oldDefaultValues.includes(rawForm.accountingFirm);
+
+  return {
+    ...initialForm,
+    ...rawForm,
+    accountingFirm: shouldUseNewFooterText
+      ? DEFAULT_ACCOUNTING_FIRM
+      : (rawForm.accountingFirm ?? DEFAULT_ACCOUNTING_FIRM),
+    showFooter: rawForm.showFooter ?? true,
+  };
+};
+
 const initialForm: FormState = {
   companyName: "",
   year: "",
@@ -261,11 +285,10 @@ const initialForm: FormState = {
   phone: "",
   email: "",
   sector: "",
-  accountingFirm: `VC - Contabilidade & Serviços, Lda
-Sociedade de Contabilistas Certificado.`,
+  accountingFirm: DEFAULT_ACCOUNTING_FIRM,
   accountingLogo: "branco",
   themeMode: "light",
-  showFooter: true, // NEW default
+  showFooter: true,
 };
 
 function makeId() {
@@ -601,7 +624,7 @@ export default function App() {
       const mapped: SavedCover[] = (data || []).map((item) => ({
         id: item.id,
         name: item.name,
-        form: item.form as FormState,
+        form: normalizeSavedForm(item.form as Partial<FormState>),
         accentColor: item.accent_color,
         logoUrl: item.logo_url || "",
         logoName: item.logo_name || "",
